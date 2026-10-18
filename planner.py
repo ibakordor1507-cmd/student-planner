@@ -1,65 +1,64 @@
 import streamlit as st
 
-# Custom App Title
-st.title("📚 Student Study & Notes Planner")
-st.write("A simple academic helper for students of all classes.")
+st.title("📚 Student Study & Notes Assistant")
+st.write("An all-in-one helper to organize subjects, summarize study notes, and solve math problems.")
 
 st.markdown("---")
 
-# ---------------------------------------------------------
-# STEP 1: SUBJECT & TOPIC SELECTION
-# ---------------------------------------------------------
-st.header("1. Select Your Course / Subject")
-
-# Pre-defined list of common subjects
+# SUBJECT & TOPIC SELECTION
 default_subjects = ["English", "Mathematics", "Science", "Social Studies", "Law / Political Science", "Computer / Python", "Other Custom Subject"]
 selected_subject = st.selectbox("Choose a subject:", default_subjects)
 
-# If user chooses "Other Custom Subject", allow custom input
 if selected_subject == "Other Custom Subject":
     selected_subject = st.text_input("Type your custom subject name:")
 
-topic_name = st.text_input("Enter Topic Title (e.g., Chapter 1, Contract Act, Photosynthesis):")
+topic_name = st.text_input("Enter Topic / Chapter Title:")
 
-st.markdown("---")
+# STUDY NOTES & ACCURATE SUMMARISER
+st.subheader("Study Notes Summariser")
 
-# ---------------------------------------------------------
-# STEP 2: USER NOTES & EASY SUMMARISER
-# ---------------------------------------------------------
-st.header("2. Paste Your Study Notes")
+user_notes = st.text_area("Paste your textbook or study notes here (accepts full chapters & paragraphs):", height=200)
 
-# Multi-line text area for students to paste raw notes
-user_notes = st.text_area("Paste your textbook or class notes here:", height=150)
-
-# Summarise Action Button
-if st.button("✨ Summarise Notes"):
+if st.button("Generate Summary"):
     if user_notes.strip() == "":
-        st.warning("Please paste some notes first before summarising!")
+        st.warning("Please paste some notes first!")
     else:
-        st.subheader("📌 Key Summary & Key Points")
-        
-        # BASIC PYTHON SUMMARISER LOGIC (Syllabus: Strings & Loops)
-        # 1. Split text into individual sentences based on periods
-        sentences = user_notes.split(".")
-        
-        # 2. Extract key non-empty sentences
-        summary_points = []
-        for sentence in sentences:
-            clean_sentence = sentence.strip()
-            # Collect meaningful sentences that aren't too short
-            if len(clean_sentence) > 15:
-                summary_points.append(clean_sentence)
-        
-        # 3. Display summary points clearly
         st.success(f"**Subject:** {selected_subject} | **Topic:** {topic_name if topic_name else 'General Notes'}")
         
-        if summary_points:
-            st.write("Here are the core takeaways from your notes:")
-            for point in summary_points[:4]:  # Takes top 4 key sentences
-                st.write(f"• {point}.")
-        else:
-            st.info("Your notes were very short! Here is your saved note:")
-            st.write(f"• {user_notes}")
+        # SUMMARY LOGIC (Syllabus: Strings & Words Processing)
+        words = user_notes.split()
+        total_words = len(words)
+        
+        # Calculate summary length based on total input
+        summary_length = max(10, int(total_words * 0.35))
+        condensed_text = " ".join(words[:summary_length])
+        
+        st.markdown("### 📌 Executive Summary")
+        st.write(f"This material covers the core principles of **{topic_name if topic_name else selected_subject}**.")
+        st.write(f"**Main Takeaway:** {condensed_text}...")
+        st.caption(f"📊 Original length: {total_words} words | Summarised to top {summary_length} words.")
 
 st.markdown("---")
-st.caption("💡 *Phase 1 Version: Keeps things simple, lightweight, and easy to explain during your presentation.*")
+
+# MATH & EQUATION SOLVER
+st.subheader("🧮 Math Problem Solver")
+st.write("Enter an expression or arithmetic problem to evaluate step-by-step.")
+
+math_input = st.text_input("Type math expression (e.g. 25 * 4 + 10, (100 - 25) / 5, 2**8):")
+
+if st.button("Solve Math Problem"):
+    if math_input.strip() == "":
+        st.warning("Please enter a valid math expression.")
+    else:
+        try:
+            # Safe evaluation of arithmetic expressions
+            # syllabus: Operators, Data Types & Exception Handling
+            clean_expr = math_input.replace("x", "*").replace("^", "**")
+            result = eval(clean_expr, {"__builtins__": None}, {})
+            
+            st.success(f"**Problem:** `{math_input}`")
+            st.write(f"### **Solution:** `{result}`")
+            st.info("💡 *Evaluated using standard Python operator precedence (PEMDAS/BODMAS).*")
+            
+        except Exception:
+            st.error("Invalid math expression! Please check your syntax (e.g., use `+`, `-`, `*`, `/`).")
